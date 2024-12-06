@@ -1,0 +1,214 @@
+<?php
+session_start();
+include 'config.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: auth_form.php");
+    exit();
+}
+
+// Mendapatkan informasi user yang sedang login
+$user_id = $_SESSION['user_id'];
+$sql = "SELECT * FROM users WHERE id='$user_id'";
+$user = $conn->query($sql)->fetch_assoc();
+
+// Membuat post baru
+if (isset($_POST['create_post'])) {
+    $content = $_POST['content'];
+    $sql = "INSERT INTO posts (user_id, content) VALUES ('$user_id', '$content')";
+    if ($conn->query($sql) === TRUE) {
+        header("Location: index.php");
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+// Membuat komentar baru
+if (isset($_POST['create_comment'])) {
+    $post_id = $_POST['post_id'];
+    $comment = $_POST['comment'];
+    $sql = "INSERT INTO comments (post_id, user_id, comment) VALUES ('$post_id', '$user_id', '$comment')";
+    if ($conn->query($sql) === TRUE) {
+        header("Location: index.php");
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+// Fungsi untuk Like
+if (isset($_POST['like_post'])) {
+    $post_id = $_POST['post_id'];
+    $sql = "UPDATE posts SET likes = likes + 1 WHERE id='$post_id'";
+    if ($conn->query($sql) === TRUE) {
+        header("Location: index.php");
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+// Mengambil semua post dan komentar
+$sql = "SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC";
+$posts = $conn->query($sql);
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: <?= $user['profile_color'] ?>;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+        .post-form {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .post-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .post-form button {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .post {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .post h4 {
+            margin: 0;
+            color: #333;
+        }
+        .post p {
+            margin: 10px 0;
+        }
+        .post small {
+            display: block;
+            color: #888;
+        }
+        .post-actions {
+            margin-top: 10px;
+        }
+        .comments {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .comment-form button {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .comment {
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #ccc;
+        }
+        a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        a:hover {
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Selamat datang, <?= $user['username'] ?>!</h1>
+        <a href="profile.php">Profil</a>
+        <a href="profile_edit.php">Edit Profil</a>
+        <a href="auth.php?logout=true">Logout</a>
+    </header>
+
+    <div class="container">
+        <div class="post-form">
+            <form method="POST" action="index.php">
+                <textarea name="content" placeholder="Apa yang kamu pikirkan?" required></textarea><br>
+                <button type="submit" name="create_post">Post</button>
+            </form>
+        </div>
+
+        <?php while ($post = $posts->fetch_assoc()) { ?>
+            <div class="post">
+                <h4><?= $post['username'] ?></h4>
+                <p><?= $post['content'] ?></p>
+                <small>Posted on: <?= date('d M Y H:i', strtotime($post['created_at'])) ?></small>
+
+                <!-- Aksi Like dan Share -->
+                <div class="post-actions">
+                    <form method="POST" action="index.php" style="display: inline;">
+                        <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                        <button type="submit" name="like_post">Like (<?= $post['likes'] ?>)</button>
+                    </form>
+                </div>
+
+                <!-- Komentar -->
+                <div class="comments">
+                    <?php
+                    $post_id = $post['id'];
+                    $sql = "SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = $post_id ORDER BY comments.created_at ASC";
+                    $comments = $conn->query($sql);
+                    while ($comment = $comments->fetch_assoc()) {
+                        echo "<div class='comment'><strong>" . $comment['username'] . ":</strong> " . $comment['comment'] . "<br><small>" . date('d M Y H:i', strtotime($comment['created_at'])) . "</small></div>";
+                    }
+                    ?>
+
+                    <!-- Form Komentar -->
+                    <form method="POST" action="index.php" class="comment-form">
+                        <textarea name="comment" placeholder="Tulis komentar..." required></textarea><br>
+                        <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                        <button type="submit" name="create_comment">Komentar</button>
+                    </form>
+                </div>
+            </div>
+        <?php } ?>
+    </div>
+
+</body>
+</html>
