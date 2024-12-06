@@ -117,28 +117,5 @@
             </form>
         </div>
             
-
-                <!-- Komentar -->
-                <div class="comments">
-                    <?php
-                    $post_id = $post['id'];
-                    $sql = "SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = $post_id ORDER BY comments.created_at ASC";
-                    $comments = $conn->query($sql);
-                    while ($comment = $comments->fetch_assoc()) {
-                        echo "<div class='comment'><strong>" . $comment['username'] . ":</strong> " . $comment['comment'] . "<br><small>" . date('d M Y H:i', strtotime($comment['created_at'])) . "</small></div>";
-                    }
-                    ?>
-
-                    <!-- Form Komentar -->
-                    <form method="POST" action="index.php" class="comment-form">
-                        <textarea name="comment" placeholder="Tulis komentar..." required></textarea><br>
-                        <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
-                        <button type="submit" name="create_comment">Komentar</button>
-                    </form>
-                </div>
-            </div>
-        <?php } ?>
-    </div>
-
 </body>
 </html>
