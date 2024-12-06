@@ -116,19 +116,7 @@
                 <button type="submit" name="create_post">Post</button>
             </form>
         </div>
-POSTINGAN
-            <div class="post">
-                <h4><?= $post['username'] ?></h4>
-                <p><?= $post['content'] ?></p>
-                <small>Posted on: <?= date('d M Y H:i', strtotime($post['created_at'])) ?></small>
-
-                <!-- Aksi Like dan Share -->
-                <div class="post-actions">
-                    <form method="POST" action="index.php" style="display: inline;">
-                        <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
-                        <button type="submit" name="like_post">Like (<?= $post['likes'] ?>)</button>
-                    </form>
-                </div>
+            
 
                 <!-- Komentar -->
                 <div class="comments">
