@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        .container h1 {
+            font-size: 36px;
+            color: #333;
+        }
+        .container p {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            margin: 20px 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #555;
+        }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .message {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome</h1>
+    </header>
+    <div class="container">
+        <h1>Assalamualaikum.</h1>
+        <p>
+            Selamat datang di platform kami! Di sini, Anda dapat berbagi cerita, memberikan komentar, dan menyukai konten dari pengguna lain. 
+            Bergabunglah sekarang untuk merasakan pengalaman komunitas yang luar biasa.
+        </p>
+        <a href="auth_form.html" class="btn">Masuk</a>
+        <a href="register.html" class="btn">Daftar</a>
+    </div>
+    <div class="container">
+        <h2>Permainan Tebak Angka</h2>
+        <p>Saya sudah memilih angka antara 1 sampai 100. Bisakah kamu menebaknya?</p>
+        
+        <input type="number" id="guess" placeholder="Masukkan tebakanmu" />
+        <button class="btn" onclick="checkGuess()">Tebak</button>
+        
+        <p class="message" id="message"></p>
+    </div>
+    <script>
+        // Pilih angka acak antara 1 dan 100
+        const randomNumber = Math.floor(Math.random() * 100) + 1;
+        console.log("Angka rahasia (untuk debugging):", randomNumber); // Hanya untuk debugging
+
+        function checkGuess() {
+            const userGuess = parseInt(document.getElementById("guess").value);
+            const message = document.getElementById("message");
+
+            if (isNaN(userGuess)) {
+                message.textContent = "Masukkan angka yang valid!";
+                message.style.color = "red";
+                return;
+            }
+
+            if (userGuess < randomNumber) {
+                message.textContent = "Terlalu kecil! Coba lagi.";
+                message.style.color = "orange";
+            } else if (userGuess > randomNumber) {
+                message.textContent = "Terlalu besar! Coba lagi.";
+                message.style.color = "orange";
+            } else {
+                message.textContent = "Selamat! Kamu menebak dengan benar!";
+                message.style.color = "green";
+            }
+        }
+    </script>
+
+</body>
+</html>
